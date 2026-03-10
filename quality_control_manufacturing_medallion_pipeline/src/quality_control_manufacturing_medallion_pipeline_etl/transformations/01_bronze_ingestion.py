@@ -96,7 +96,7 @@ def bronze_maintenance():
 # EVENTS — Modo STREAMING con Auto Loader
 # =============================================================================
 
-@dp.create_streaming_table(
+@dp.table(
     name="bronze_inspections",
     comment=(
         "Eventos de inspección: sensores y parámetros de proceso. "
@@ -133,7 +133,7 @@ def ingest_inspections_buffer():
     )
 
 
-@dp.create_streaming_table(
+@dp.table(
     name="bronze_labels",
     comment=(
         "Etiquetas de defecto con delayed feedback. "
