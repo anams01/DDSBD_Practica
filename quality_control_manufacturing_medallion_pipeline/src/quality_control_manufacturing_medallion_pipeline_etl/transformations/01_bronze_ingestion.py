@@ -2,29 +2,20 @@
 01_bronze_ingestion.py
 ======================
 Capa Bronce — Ingesta raw de datos desde la landing_zone.
-
-Tablas generadas:
-  - bronze_machines        : catálogo de máquinas (batch)
-  - bronze_lines           : líneas de producción (batch)
-  - bronze_suppliers       : proveedores (batch)
-  - bronze_operators       : operarios (batch)
-  - bronze_maintenance     : historial de mantenimiento (batch)
-  - bronze_inspections     : eventos de inspección (streaming)
-  - bronze_labels          : etiquetas de defecto con delayed feedback (streaming)
 """
 
 import pyspark.pipelines as dp
 from pyspark.sql import functions as F
 
 # =============================================================================
-# CONFIGURACIÓN — ajusta SCHEMA si es necesario
+# CONFIGURACIÓN
 # =============================================================================
 
-CATALOG  = "workspace"
-SCHEMA   = "quality_control_manufacturing"
-VOLUME   = "landing_zone"
+CATALOG        = "workspace"
+SCHEMA_VOLUME  = "quality_control_manufacturing"  # donde está landing_zone
+VOLUME         = "landing_zone"
 
-BASE_PATH          = f"/Volumes/{CATALOG}/{SCHEMA}/{VOLUME}"
+BASE_PATH          = f"/Volumes/{CATALOG}/{SCHEMA_VOLUME}/{VOLUME}"
 CONTEXT_PATH       = f"{BASE_PATH}/context"
 EVENTS_PATH        = f"{BASE_PATH}/events"
 SOURCE_BUFFER_PATH = f"{BASE_PATH}/source_buffer"
@@ -98,10 +89,7 @@ def bronze_maintenance():
 
 @dp.table(
     name="bronze_inspections",
-    comment=(
-        "Eventos de inspección: sensores y parámetros de proceso. "
-        "1.000.000 unidades/mes. Histórico 2023-2024 + producción 2025 (con drift)."
-    ),
+    comment="Eventos de inspección: 1.000.000 unidades/mes. Histórico 2023-2024 + 2025.",
 )
 def bronze_inspections():
     return (
@@ -119,7 +107,6 @@ def bronze_inspections():
 
 @dp.append_flow(target="bronze_inspections")
 def ingest_inspections_buffer():
-    """Datos de producción 2025 desde source_buffer."""
     return (
         spark.readStream
         .format("cloudFiles")
@@ -135,10 +122,7 @@ def ingest_inspections_buffer():
 
 @dp.table(
     name="bronze_labels",
-    comment=(
-        "Etiquetas de defecto con delayed feedback. "
-        "Separadas de inspections: confirmación puede tardar hasta 30 días."
-    ),
+    comment="Etiquetas de defecto con delayed feedback. Separadas de inspections.",
 )
 def bronze_labels():
     return (
@@ -156,7 +140,6 @@ def bronze_labels():
 
 @dp.append_flow(target="bronze_labels")
 def ingest_labels_buffer():
-    """Etiquetas de producción 2025."""
     return (
         spark.readStream
         .format("cloudFiles")

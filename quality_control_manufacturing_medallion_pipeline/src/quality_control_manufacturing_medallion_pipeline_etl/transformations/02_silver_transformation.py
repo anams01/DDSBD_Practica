@@ -2,13 +2,6 @@
 02_silver_transformation.py
 ============================
 Capa Plata — Limpieza, validación, cuarentena y enriquecimiento.
-
-Tablas generadas:
-  - silver_inspections_quarantine  : registros que no superan las reglas (DLQ)
-  - silver_labels_quarantine       : etiquetas anómalas (DLQ)
-  - silver_inspections             : inspecciones limpias
-  - silver_labels                  : etiquetas limpias
-  - silver_inspections_labeled     : tabla de hechos unificada (stream-stream join)
 """
 
 import pyspark.pipelines as dp
@@ -19,13 +12,10 @@ from rules import get_rules_by_tag
 # CONFIGURACIÓN
 # =============================================================================
 
-CATALOG  = "workspace"
-#SCHEMA   = "ana_martin17"
-VOLUME   = "landing_zone"
-
-SCHEMA_VOLUME  = "quality_control_manufacturing"
-
-SCHEMA_TABLES  = "ana_martin17"
+CATALOG       = "workspace"
+SCHEMA_TABLES = "ana_martin17"              # donde se crean las tablas
+SCHEMA_VOLUME = "quality_control_manufacturing"  # donde está landing_zone
+VOLUME        = "landing_zone"
 
 BASE_PATH       = f"/Volumes/{CATALOG}/{SCHEMA_VOLUME}/{VOLUME}"
 CHECKPOINT_BASE = f"{BASE_PATH}/_checkpoints"
@@ -125,8 +115,8 @@ def silver_labels():
 @dp.table(
     name="silver_inspections_labeled",
     comment=(
-        "Tabla de hechos unificada: inspecciones enriquecidas con su etiqueta de defecto. "
-        "Join stream-stream con watermark de 30 días para gestionar delayed feedback."
+        "Tabla de hechos unificada: inspecciones con etiqueta de defecto. "
+        "Join stream-stream con watermark de 30 días para delayed feedback."
     ),
 )
 def silver_inspections_labeled():
