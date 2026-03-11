@@ -25,8 +25,8 @@ def get_rules():
             "tag": "inspections",
         },
         "voltage_valid": {
-            "constraint": "voltage_v BETWEEN 200 AND 260",
-            "tag": "inspections",
+        "constraint": "voltage_v BETWEEN 2.5 AND 4.5",
+        "tag": "inspections",
         },
         "humidity_valid": {
             "constraint": "humidity_pct BETWEEN 20.0 AND 80.0",
