@@ -149,10 +149,10 @@ def agg_30d():
     table_properties={"delta.enableChangeDataFeed": "true"},
 )
 def gold_machine_aggregations():
-    h1  = dp.read("agg_1h")
-    h24 = dp.read("agg_24h")
-    d7  = dp.read("agg_7d")
-    d30 = dp.read("agg_30d")
+    h1  = dp.read_stream("agg_1h")
+    h24 = dp.read_stream("agg_24h")
+    d7  = dp.read_stream("agg_7d")
+    d30 = dp.read_stream("agg_30d")
 
     return (
         h1
