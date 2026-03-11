@@ -95,6 +95,7 @@ def gold_supplier_profile():
             "is_new_supplier",
             F.col("onboarding_date") >= F.lit("2025-01-01")
         )
+        .withColumn("solder_thickness_mean_um", F.col("solder_thickness_mean_um").cast("double"))
         .select(
             "supplier_id",
             "supplier_name",
