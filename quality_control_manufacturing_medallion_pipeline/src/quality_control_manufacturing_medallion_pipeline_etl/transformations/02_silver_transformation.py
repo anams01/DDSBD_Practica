@@ -20,7 +20,7 @@ from rules import get_rules_by_tag
 # =============================================================================
 
 CATALOG  = "workspace"
-SCHEMA   = "quality_control_manufacturing"
+SCHEMA   = "ana_martin17"
 VOLUME   = "landing_zone"
 
 BASE_PATH       = f"/Volumes/{CATALOG}/{SCHEMA}/{VOLUME}"
