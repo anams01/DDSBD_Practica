@@ -59,7 +59,7 @@ INSPECTION_RULES = get_rules_by_tag("inspections")
 )
 def silver_inspections_quarantine():
     return (
-        dp.read_stream("bronze_inspections")
+        spark.readStream.table(f"{CATALOG}.{SCHEMA}.bronze_inspections")
         .withColumn("is_quarantined", _build_quarantine_flag(INSPECTION_RULES))
         .filter(F.col("is_quarantined") == True)
         .drop("is_quarantined")
@@ -71,7 +71,7 @@ def silver_inspections_quarantine():
 @dp.table(name="silver_inspections_clean", temporary=True)
 def silver_inspections_clean():
     return (
-        dp.read_stream("bronze_inspections")
+        spark.readStream.table(f"{CATALOG}.{SCHEMA}.bronze_inspections")
         .withColumn("is_quarantined", _build_quarantine_flag(INSPECTION_RULES))
         .filter(F.col("is_quarantined") == False)
         .drop("is_quarantined")
@@ -107,7 +107,7 @@ LABEL_RULES = get_rules_by_tag("labels")
 )
 def silver_labels_quarantine():
     return (
-        dp.read_stream("bronze_labels")
+        spark.readStream.table(f"{CATALOG}.{SCHEMA}.bronze_labels")
         .withColumn("is_quarantined", _build_quarantine_flag(LABEL_RULES))
         .filter(F.col("is_quarantined") == True)
         .drop("is_quarantined")
@@ -119,7 +119,7 @@ def silver_labels_quarantine():
 @dp.table(name="silver_labels_clean", temporary=True)
 def silver_labels_clean():
     return (
-        dp.read_stream("bronze_labels")
+        spark.readStream.table(f"{CATALOG}.{SCHEMA}.bronze_labels")
         .withColumn("is_quarantined", _build_quarantine_flag(LABEL_RULES))
         .filter(F.col("is_quarantined") == False)
         .drop("is_quarantined")
@@ -156,7 +156,7 @@ dp.create_auto_cdc_flow(
 def silver_inspections_labeled():
     # Inspecciones con watermark
     inspections = (
-        dp.read_stream("silver_inspections_clean")
+        spark.readStream.table(f"{CATALOG}.{SCHEMA}.silver_inspections_clean")
         .withWatermark("timestamp", WATERMARK_DELAY)
         .select(
             "unit_id", "timestamp", "machine_id", "line_id", "shift",
@@ -172,7 +172,7 @@ def silver_inspections_labeled():
 
     # Etiquetas con watermark
     labels = (
-        dp.read_stream("silver_labels_clean")
+        spark.readStream.table(f"{CATALOG}.{SCHEMA}.silver_labels_clean")
         .withWatermark("label_available_date", WATERMARK_DELAY)
         .select("unit_id", "is_defective", "label_available_date")
     )
