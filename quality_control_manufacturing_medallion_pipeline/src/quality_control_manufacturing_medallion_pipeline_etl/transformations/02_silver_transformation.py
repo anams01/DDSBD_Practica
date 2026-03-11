@@ -132,7 +132,6 @@ def silver_inspections_labeled():
             "solder_thickness_um", "alignment_error_um", "optical_density",
             "tool_wear_pct", "time_since_maintenance_h", "production_speed_pct",
             "operator_experience_yrs", "cycle_time_s",
-            "spc_xbar", "spc_range", "cumulative_defect_rate_shift",
         )
     )
 
