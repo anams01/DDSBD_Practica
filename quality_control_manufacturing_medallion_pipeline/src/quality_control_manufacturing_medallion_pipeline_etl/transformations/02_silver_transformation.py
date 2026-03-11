@@ -117,10 +117,7 @@ def silver_labels():
 
 @dp.table(
     name="silver_inspections_labeled",
-    comment=(
-        "Tabla de hechos unificada: inspecciones con etiqueta de defecto. "
-        "Join stream-stream con watermark de 30 días para delayed feedback."
-    ),
+    comment="Tabla de hechos unificada: inspecciones con etiqueta de defecto.",
 )
 def silver_inspections_labeled():
     inspections = (
@@ -145,6 +142,26 @@ def silver_inspections_labeled():
 
     return inspections.join(
         labels,
-        on="unit_id",
+        on=[
+            inspections.unit_id == labels.unit_id,
+            labels.label_available_date >= inspections.timestamp,
+            labels.label_available_date <= inspections.timestamp + F.expr("INTERVAL 30 DAYS"),
+        ],
         how="left",
-    ).withColumn("join_timestamp", F.current_timestamp())
+    ).select(
+        inspections.unit_id,
+        inspections.timestamp,
+        inspections.machine_id, inspections.line_id, inspections.shift,
+        inspections.supplier_id, inspections.material_batch_id,
+        inspections.temperature_celsius, inspections.pressure_bar,
+        inspections.vibration_mm_s, inspections.voltage_v,
+        inspections.current_ma, inspections.humidity_pct,
+        inspections.particle_count_m3, inspections.solder_thickness_um,
+        inspections.alignment_error_um, inspections.optical_density,
+        inspections.tool_wear_pct, inspections.time_since_maintenance_h,
+        inspections.production_speed_pct, inspections.operator_experience_yrs,
+        inspections.cycle_time_s,
+        labels.is_defective,
+        labels.label_available_date,
+        F.current_timestamp().alias("join_timestamp"),
+    )
